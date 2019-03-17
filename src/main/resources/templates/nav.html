@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8"/>
+<title>Insert title here</title>
+</head>
+<body>
+	<nav class="navbar-default navbar-static-side" role="navigation" th:fragment="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element"> 
+                    	<span>
+                            <img alt="image" class="img-circle" th:src="@{/img/cat.jpg}" height="48px" width="48px" />
+						</span>
+                    	<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear"> 
+                            	<span class="block m-t-xs">
+                            		<strong class="font-bold" th:text="${session.user.getName()}">username</strong>
+                             	</span> 
+                             </span>
+                     	</a>
+                    </div>
+                    <div class="logo-element">
+                        YX
+                    </div>
+                </li>
+                <li>
+                    <a th:href="@{dashboard}"><i class="fa fa-diamond"></i> <span class="nav-label">仪表盘</span></a>
+                </li>
+
+                <li>
+                    <a th:href="@{userManage}"><i class="fa fa-shopping-cart"></i>
+                        <span class="nav-label">用户管理</span>
+                        <span class="fa arrow"></span></a>
+                </li>
+                <li>
+                    <a th:href="@{dataManage}"><i class="fa fa-shopping-cart"></i>
+                        <span class="nav-label">数据管理</span>
+                        <span class="fa arrow"></span></a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+</body>
+</html>
+
+
+
