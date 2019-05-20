@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>后台信息管理系统</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+
+    <!-- Toastr style -->
+    <link th:href="@{/css/plugins/toastr/toastr.min.css}" rel="stylesheet"/>
+
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+
+    <!-- summernote style -->
+    <link th:href="@{/css/plugins/summernote/summernote.css}" rel="stylesheet" />
+    <link th:href="@{/css/plugins/summernote/summernote-bs3.css}" rel="stylesheet" />
+
+</head>
+
+<body>
+
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation" th:include="nav :: navigation"></nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="border-bottom" th:include="header :: headerTop"></div>
+        <div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
+            <div class="col-lg-10">
+                <h2>文件详情</h2>
+                <ol class="breadcrumb">
+                    <li>
+                        <a href="#">首页</a>
+                    </li>
+                    <li>
+                        <a>文件详情</a>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>文件详情</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <form class="form-horizontal" enctype="multipart/form-data">
+
+                                <div class="form-group"><label class="col-sm-2 control-label">文件id：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${file.getId()}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">文件名称：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${file.getName()}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">文件大小：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${file.getSize()}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">状态：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:if="${file.getStatus() == 0}" value="未审核"/>
+                                        <input readonly="readonly" type="text" class="form-control" th:if="${file.getStatus() == 1}" value="已审核"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">上传人：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${file.getReporter()}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">审核人：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${file.getAuditor()}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">最后更新时间：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${#dates.format(file.createdTime, 'yyyy-MM-dd HH:mm:ss')}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">源文件：</label>
+                                    <div class="col-sm-10" th:if="${!allow && session.user.getRole() != 2 && session.user.getRole() != 100}">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="请先提交订单"/>
+                                    </div>
+                                    <div class="col-sm-10" th:if="${allow  || session.user.getRole() == 2 || session.user.getRole() == 100}">
+                                        <a class="form-control" target="_blank" th:href="${'/file/'+file.getId()+'/downloadOrigin'}">下载</a>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label class="col-sm-2 control-label">解析后文件：</label>
+                                    <div class="col-sm-10" th:if="${!allow && session.user.getRole() != 2 && session.user.getRole() != 100}">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="请先提交订单"/>
+                                    </div>
+                                    <div class="col-sm-10" th:if="${allow || session.user.getRole() == 2 || session.user.getRole() == 100}">
+                                        <a class="form-control" target="_blank" th:href="${'/file/'+file.getId()+'/downloadOutput'}">下载</a>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" th:if="${session.user != null}"><label class="col-sm-2 control-label">操作：</label>
+                                    <div class="col-sm-10" th:if="${!like}">
+                                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal"
+                                        th:onclick="'javascript: like('+${session.user.getId()}+', '+${file.getId()}+')'">收藏</button>
+                                    </div>
+                                    <div class="col-sm-10" th:if="${like}">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="已收藏"/>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>数据概览</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <form class="form-horizontal" enctype="multipart/form-data">
+                                <div class="form-group"><label class="col-sm-2 control-label">树种：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getSpecies()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">包含树木数量：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getStemCount()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">包含木材段数量：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getLogCount()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">采伐时间：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getWorkTime()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">木材产品种类：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getLogAssort()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">最小胸径(mm)：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getMinDBH()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">最大胸径(mm)：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getMaxDBH()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">最小木材段长度(cm)：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getMinLength()}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-sm-2 control-label">最大木材段长度(cm)：</label>
+                                    <div class="col-sm-10">
+                                        <input readonly="readonly" type="text" class="form-control" th:value="${task.getMaxLength()}"/>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrapper wrapper-content animated fadeInRight" th:if="${session.user!=null}">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>提交订单</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content" th:if="${!submitted}">
+                            <form action="/order" method="POST" class="form-horizontal">
+                                <div class="form-group"><label class="col-sm-2 control-label">下载原因：</label>
+                                    <div class="col-sm-10">
+                                        <input name="userId" type="hidden" th:value="${session.user.getId()}">
+                                        <input name="fileId" type="hidden" th:value="${file.getId()}">
+                                        <input id="reason" name="reason" type="text" class="form-control"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button id="submitButton" class="btn btn-primary" type="submit">&nbsp;&nbsp;&nbsp;&nbsp;提&nbsp;&nbsp;&nbsp;&nbsp;交&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="ibox-content" th:if="${submitted && !allow}">
+                            <form class="form-horizontal">
+                                <div class="form-group"><label class="col-sm-2 control-label">订单审核中</label>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="ibox-content" th:if="${submitted && allow}">
+                            <form class="form-horizontal">
+                                <div class="form-group"><label class="col-sm-2 control-label">订单已审核</label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer" th:include="footer :: copyright"></div>
+    </div>
+</div>
+
+<!-- Mainly scripts -->
+<script th:src="@{/js/jquery-2.1.1.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+
+<!-- Peity -->
+<script th:src="@{/js/plugins/peity/jquery.peity.min.js}"></script>
+
+<!-- Custom and plugin javascript -->
+<script th:src="@{/js/inspinia.js}"></script>
+<script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+
+<!-- Toastr script -->
+<script th:src="@{/js/plugins/toastr/toastr.min.js}"></script>
+
+<!-- common -->
+<script th:src="@{/js/common.js}"></script>
+
+<!-- SUMMERNOTE -->
+<script th:src="@{/js/plugins/summernote/summernote.min.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var pageHTML = [[${pageHTML}]];
+    $(document).ready(function () {
+        $("#pageHTML").html(pageHTML);
+
+    });
+
+    function like(userId, fileId){
+        if(confirm("确定该操作吗?")){
+            $.ajax({
+                type: "POST",
+                url: "/users/" + userId + "/file/" + fileId + "/like",
+                contentType: "application/json; charset=utf-8",
+                success: function(msg){
+                    window.location.reload();
+                },
+                error: function(){
+                    alert("系统异常！");
+                }
+            });
+        }
+    }
+    /*]]>*/
+</script>
+
+</body>
+
+</html>

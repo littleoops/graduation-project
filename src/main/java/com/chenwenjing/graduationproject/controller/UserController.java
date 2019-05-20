@@ -7,8 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -29,7 +31,7 @@ public class UserController {
         User existUser = userService.getByNameAndPassword(user.getName(), user.getPassword());
         if (existUser != null) {
             httpSession.setAttribute("user", existUser);
-            return "redirect:dashboard";
+            return "redirect:/file/available";
         } else {
             model.addAttribute("error", "用户名或密码错误，请重新登录！");
             return "login";
@@ -53,4 +55,19 @@ public class UserController {
             return "login";
         }
     }
+
+    @GetMapping("/user/manage")
+    public String userManage(Model model) {
+        List<User> allUsers = userService.list();
+        model.addAttribute("userList", allUsers);
+        return "user/manage";
+    }
+
+    @PostMapping("/user/updateState")
+    @ResponseBody
+    public void updateState(User user, Model model) {
+        userService.updateRole(user.getId(), user.getRole());
+    }
+
+
 }

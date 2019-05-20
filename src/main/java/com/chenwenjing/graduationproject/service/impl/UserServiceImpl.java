@@ -17,6 +17,16 @@ public class UserServiceImpl implements UserService {
     private JdbcTemplate jdbcTemplate;
 
     @Override
+    public User get(int id) {
+        String sql = "select * from user where id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, ROW_MAPPER, id);
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
+    }
+
+    @Override
     public User getByName(String name) {
         String sql = "select * from user where name = ?";
         try {
@@ -46,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> list() {
-        String sql = "select * from user";
+        String sql = "select * from user where role != 100";
         return jdbcTemplate.query(sql, ROW_MAPPER);
     }
 

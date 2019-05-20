@@ -8,7 +8,7 @@ public class User {
 
     private String password;
 
-    private int role;
+    private int role; // 0. 普通用户 1. 用户管理员 2. 数据管理员 100. 超级管理员
 
     private String email;
 

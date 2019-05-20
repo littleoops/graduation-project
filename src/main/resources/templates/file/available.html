@@ -30,13 +30,13 @@
         	<div class="border-bottom" th:include="header :: headerTop"></div>
       		<div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
 		   		<div class="col-lg-10">
-		     		<h2>数据管理</h2>
+		     		<h2>最近上传文件</h2>
 		          	<ol class="breadcrumb">
 			            <li>
 			            	<a href="#">首页</a>
 			            </li>
 			            <li>
-			            	<a>数据管理</a>
+			            	<a>最近上传文件</a>
 			         	</li>
 					</ol>
 		      	</div>
@@ -47,7 +47,7 @@
                 <div class="col-lg-12">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            <h5>数据列表</h5>
+                            <h5>文件列表</h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -66,25 +66,26 @@
                                         <th width="20%">上传人</th>
                                         <th width="20%">审核人</th>
                                         <th width="20%">上传时间</th>
-                                        <th width="20%">操作</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr th:each="file : ${files}">
                                         <td class="info" th:text="${file.id}"></td>
-                                        <td class="info">
+                                        <td class="info" th:if="${file.status == 0}" th:text="${file.getName()}"></td>
+                                        <td class="info" th:if="${file.status == 1}">
                                             <a th:href="${'/file/' + file.getId()}"><p th:text="${file.getName()}"></p></a>
                                         </td>
                                         <td class="info" th:text="${file.size}"></td>
-                                        <td class="info" th:if="${file.status == 1}" th:text="上线"></td>
+                                        <td class="info" th:if="${file.status == 1}" th:text="已审核"></td>
                                         <td class="info" th:if="${file.status == 0}" th:text="未审核"></td>
                                         <td class="info" th:text="${file.reporter}"></td>
                                         <td class="info" th:text="${file.auditor}"></td>
                                         <td class="info" th:text="${#dates.format(file.createdTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                                        <td>
-                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${file.getStatus() == 0}" th:onclick="'javascript: updateFile('+${file.id}+', 1)' ">通过审核</button>
-                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${file.getStatus() == 1}" th:onclick="'javascript: updateFile('+${file.id}+', 0)' ">下线</button>
-                                        </td>
+                                        <!--<td th:if="${session.user != null && !likeFileIds.contains(file.getId())}">-->
+                                            <!--<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal"-->
+                                                    <!--th:onclick="'javascript: like('+${session.user.getId()}+', '+${file.getId()}+')'">收藏</button>-->
+                                        <!--</td>-->
+                                        <!--<td class="info" th:if="${session.user != null && likeFileIds.contains(file.getId())}">已收藏</td>-->
                                     </tr>
                                     </tbody>
                                     <tfoot>
@@ -100,7 +101,6 @@
                     </div>
                 </div>
             </div>
-        	<div class="footer" th:include="footer :: copyright"></div>
       	</div>
 	</div>
 	
@@ -135,11 +135,11 @@
 
         });
 
-        function updateFile(id, status){
+        function like(userId, fileId){
             if(confirm("确定该操作吗?")){
                 $.ajax({
                     type: "POST",
-                    url: "/file/updateState?id="+id+"&status="+status,
+                    url: "/users/" + userId + "/file/" + fileId + "/like",
                     contentType: "application/json; charset=utf-8",
                     success: function(msg){
                         window.location.reload();

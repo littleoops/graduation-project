@@ -12,7 +12,7 @@ public class File {
 
     private String outputUrl;
 
-    private int status;
+    private int status; // 0: 待审核 1: 已审核
 
     private String reporter;
 

@@ -30,13 +30,13 @@
         	<div class="border-bottom" th:include="header :: headerTop"></div>
       		<div class="row wrapper border-bottom white-bg page-heading" th:fragment="headerNav">
 		   		<div class="col-lg-10">
-		     		<h2>数据管理</h2>
+		     		<h2>我的收藏</h2>
 		          	<ol class="breadcrumb">
 			            <li>
 			            	<a href="#">首页</a>
 			            </li>
 			            <li>
-			            	<a>数据管理</a>
+			            	<a>我的收藏</a>
 			         	</li>
 					</ol>
 		      	</div>
@@ -46,27 +46,15 @@
             <div class="wrapper wrapper-content animated fadeInRight">
                 <div class="col-lg-12">
                     <div class="ibox float-e-margins">
-                        <div class="ibox-title">
-                            <h5>数据列表</h5>
-                            <div class="ibox-tools">
-                                <a class="collapse-link">
-                                    <i class="fa fa-chevron-up"></i>
-                                </a>
-                            </div>
-                        </div>
                         <div class="ibox-content">
                             <div class="table-responsive">
                                 <table class=" table table-hover" data-page-size="10">
                                     <thead>
                                     <tr>
-                                        <th width="5%">文件ID</th>
-                                        <th width="20%">文件名</th>
-                                        <th width="20%">文件大小</th>
-                                        <th width="20%">状态</th>
-                                        <th width="20%">上传人</th>
-                                        <th width="20%">审核人</th>
-                                        <th width="20%">上传时间</th>
-                                        <th width="20%">操作</th>
+                                        <th width="10%">文件ID</th>
+                                        <th width="30%">文件名</th>
+                                        <th width="40%">文件最后更新日期</th>
+                                        <th width="20%" th:if="${session.user != null}">操作</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -75,25 +63,12 @@
                                         <td class="info">
                                             <a th:href="${'/file/' + file.getId()}"><p th:text="${file.getName()}"></p></a>
                                         </td>
-                                        <td class="info" th:text="${file.size}"></td>
-                                        <td class="info" th:if="${file.status == 1}" th:text="上线"></td>
-                                        <td class="info" th:if="${file.status == 0}" th:text="未审核"></td>
-                                        <td class="info" th:text="${file.reporter}"></td>
-                                        <td class="info" th:text="${file.auditor}"></td>
-                                        <td class="info" th:text="${#dates.format(file.createdTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                                        <td>
-                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${file.getStatus() == 0}" th:onclick="'javascript: updateFile('+${file.id}+', 1)' ">通过审核</button>
-                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${file.getStatus() == 1}" th:onclick="'javascript: updateFile('+${file.id}+', 0)' ">下线</button>
+                                        <td class="info" th:text="${#dates.format(file.updatedTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                        <td th:if="${session.user != null}">
+                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:onclick="'javascript: dislike('+${session.user.getId()}+', '+${file.getId()}+')'">取消收藏</button>
                                         </td>
                                     </tr>
                                     </tbody>
-                                    <tfoot>
-                                    <tr>
-                                        <td colspan="8">
-                                            <ul id="pageHTML" class="pagination pull-right"></ul>
-                                        </td>
-                                    </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -135,11 +110,11 @@
 
         });
 
-        function updateFile(id, status){
+        function dislike(userId, fileId){
             if(confirm("确定该操作吗?")){
                 $.ajax({
                     type: "POST",
-                    url: "/file/updateState?id="+id+"&status="+status,
+                    url: "/users/" + userId + "/file/" + fileId + "/dislike",
                     contentType: "application/json; charset=utf-8",
                     success: function(msg){
                         window.location.reload();

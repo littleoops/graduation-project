@@ -59,31 +59,28 @@
                                 <table class=" table table-hover" data-page-size="10">
                                     <thead>
                                     <tr>
-                                        <th width="5%">文件ID</th>
+                                        <th width="5%">订单ID</th>
+                                        <th width="20%">提交人</th>
                                         <th width="20%">文件名</th>
-                                        <th width="20%">文件大小</th>
+                                        <th width="20%">原因</th>
                                         <th width="20%">状态</th>
-                                        <th width="20%">上传人</th>
-                                        <th width="20%">审核人</th>
-                                        <th width="20%">上传时间</th>
+                                        <th width="20%">时间</th>
                                         <th width="20%">操作</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:each="file : ${files}">
-                                        <td class="info" th:text="${file.id}"></td>
-                                        <td class="info">
-                                            <a th:href="${'/file/' + file.getId()}"><p th:text="${file.getName()}"></p></a>
+                                    <tr th:each="order : ${orders}">
+                                        <td class="info" th:text="${order.id}"></td>
+                                        <td class="info" th:text="${userMap.get(order.getUserId()).name}"></td>
+                                        <td class="info" th:text="${fileMap.get(order.getFileId()).name}"></td>
+                                        <td class="info" th:text="${order.reason}"></td>
+                                        <td class="info" th:if="${order.status == 1}" th:text="已审核"></td>
+                                        <td class="info" th:if="${order.status == 0}" th:text="未审核"></td>
+                                        <td class="info" th:text="${#dates.format(order.updatedTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                        <td class="info" th:if="${order.status == 0}">
+                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${order.getStatus() == 0}" th:onclick="'javascript: updateOrder('+${order.id}+', 1)' ">通过审核</button>
                                         </td>
-                                        <td class="info" th:text="${file.size}"></td>
-                                        <td class="info" th:if="${file.status == 1}" th:text="上线"></td>
-                                        <td class="info" th:if="${file.status == 0}" th:text="未审核"></td>
-                                        <td class="info" th:text="${file.reporter}"></td>
-                                        <td class="info" th:text="${file.auditor}"></td>
-                                        <td class="info" th:text="${#dates.format(file.createdTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                                        <td>
-                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${file.getStatus() == 0}" th:onclick="'javascript: updateFile('+${file.id}+', 1)' ">通过审核</button>
-                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#updateModal" th:if="${file.getStatus() == 1}" th:onclick="'javascript: updateFile('+${file.id}+', 0)' ">下线</button>
+                                        <td class="info" th:if="${order.status == 1}" th:text="已审核">
                                         </td>
                                     </tr>
                                     </tbody>
@@ -135,11 +132,11 @@
 
         });
 
-        function updateFile(id, status){
+        function updateOrder(id, status){
             if(confirm("确定该操作吗?")){
                 $.ajax({
                     type: "POST",
-                    url: "/file/updateState?id="+id+"&status="+status,
+                    url: "/order/updateState?id="+id+"&status="+status,
                     contentType: "application/json; charset=utf-8",
                     success: function(msg){
                         window.location.reload();
