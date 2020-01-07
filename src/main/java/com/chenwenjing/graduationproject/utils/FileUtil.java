@@ -18,8 +18,8 @@ import java.util.*;
 
 public class FileUtil {
 
-    public static final String ORIGIN_PATH = "/Users/pengfuwei/workspace/graduation-project/src/main/resources/static/files/origin/";
-    public static final String OUTPUT_PATH = "/Users/pengfuwei/workspace/graduation-project/src/main/resources/static/files/output/";
+    public static final String ORIGIN_PATH = "/Users/wenjing/workspace/graduation-project/src/main/resources/static/files/origin/";
+    public static final String OUTPUT_PATH = "/Users/wenjing/workspace/graduation-project/src/main/resources/static/files/output/";
 
     public static String uploadOriginFile(HttpServletRequest request, MultipartFile file) {
         try {
